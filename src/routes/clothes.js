@@ -1,11 +1,11 @@
 'use strict';
+
 const express = require('express');
 const router = express.Router();
 const clotheModel = require('../models/clothes');
 const Interface = require('../models/data-collection-class');
-const clothe = new Interface(clotheModel);
+const clothe = new Interface('clothes');
 const validator = require('../middleware/validator');
-
 
 
 router.get('/', getHandler);
@@ -18,7 +18,7 @@ router.delete('/:id', deleteHandler);
 async function getHandler(req, res) {
   try {
     const respObj = await clothe.read(req.params.id);
-    res.json(respObj);
+    res.json(respObj.rows);
   } catch (e) {
     next(e);
   }
@@ -26,7 +26,7 @@ async function getHandler(req, res) {
 async function postHandler(req, res) {
   try {
     const respObj = await clothe.create(req.body);
-    res.json(respObj);
+    res.json(respObj.rows[0]);
   } catch (e) {
     next(e);
   }
@@ -34,7 +34,7 @@ async function postHandler(req, res) {
 async function putHandler(req, res) {
   try {
     const respObj = await clothe.update(req.params.id, req.body);
-    res.json(respObj);
+    res.json(respObj.rows[0]);
   } catch (e) {
     next(e);
   }
@@ -44,7 +44,7 @@ async function deleteHandler(req, res) {
   try {
 
     const respObj = await clothe.delete(req.params.id);
-    res.json(respObj);
+    res.json(respObj.rows[0]);
   } catch (e) {
     next(e);
 
