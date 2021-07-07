@@ -1,29 +1,36 @@
 'use strict';
 
+const pool = require('../../pool');
+
 class Interface {
-  constructor(model) {
-    this.model = model;
+
+  constructor(table) {
+    this.table = table;
   }
 
   create(obj) {
-    const doc = new this.model(obj);
-    return doc.save();
+    const sql = `INSERT INTO ${this.table} (name,price) VALUES ($1,$2) RETURNING *;`;
+    const safeValues = [obj.name, obj.price];
+    return pool.query(sql, safeValues);
+    // return doc.save();
   }
 
-  read(_id) {
-    if (_id) {
-      return this.model.find({ _id });
+  read(id) {
+    if (id) {
+      return pool.query(`SELECT * FROM ${this.table} WHERE id=$1;`,[id]);
     } else {
-      return this.model.find({});
+      return pool.query(`SELECT * FROM ${this.table};`);
     }
   }
   update(id, obj) {
-    return this.model.findByIdAndUpdate(id, obj, { new: true });
+    const sql = `UPDATE ${this.table} SET name=$1,price=$2 WHERE id=$3 RETURNING *;`;
+    const safeValues = [obj.name, obj.price, id];
+    return pool.query(sql, safeValues);
   }
   delete(id) {
-    return this.model.findByIdAndDelete(id);
+    return pool.query(`DELETE FROM ${this.table} WHERE id=$1 RETURNING *;`, [id]);
   }
 
 }
 
-module.exports=Interface;
+module.exports = Interface;
